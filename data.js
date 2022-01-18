@@ -1,5 +1,6 @@
 const data = [
   {
+    id: 'category_1',
     title: 'Category 1',
     data: [
       {
@@ -35,6 +36,7 @@ const data = [
     ],
   },
   {
+    id: 'category_2',
     title: 'Category 2',
     data: [
       {
@@ -396,6 +398,7 @@ const data = [
     ],
   },
   {
+    id: 'category_4',
     title: 'Category 4',
     data: [
       {
@@ -757,6 +760,7 @@ const data = [
     ],
   },
   {
+    id: 'category_5',
     title: 'Category 5',
     data: [
       {name: 'Bulgaria', code: 'BG'},
@@ -789,6 +793,7 @@ const data = [
     ],
   },
   {
+    id: 'countries_list',
     title: 'Countries List',
     data: [
       {name: 'Afghanistan', code: 'AF'},
