@@ -14,6 +14,7 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   useColorScheme,
   View,
 } from 'react-native';
@@ -26,67 +27,136 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
+import DummyData from './data';
+import FastList from 'dcd-fast-list';
+
+const gapWidth = 10;
+const calculateMaxColumns = width => {
+  const ranges = [135, 145, 155];
+  const possibleColumns = [];
+  ranges.forEach((range, index) => {
+    const columnsNoGap = Math.floor(width / range);
+    const columnsWithGap = Math.floor(
+      (width - (columnsNoGap - 1) * gapWidth) / range,
+    );
+    possibleColumns.push(columnsWithGap);
+  });
+  return Math.max(...possibleColumns);
 };
+
+class SectionHeader extends React.PureComponent {
+  viewAll = () => {
+    this.props.viewAll(this.props.id, this.props.index);
+  };
+
+  render() {
+    return (
+      <View style={{flexDirection: 'row'}}>
+        <Text>{this.props.sectionTitle}</Text>
+        <TouchableOpacity onPress={this.viewAll} />
+      </View>
+    );
+  }
+}
+
+/*
+{
+ type: 'section_header',
+ id: string;
+ index: number;
+ isShowingAll: boolean;
+}
+{
+ type: 'items__textOnly',
+ data: [],
+}
+{
+ type: 'items__hasImage',
+ data: [],
+}
+{
+ type: 'items__horizontal',
+ data: [],
+}
+/////////////////////////
+By Category
+{
+ id: string;
+ title: string;
+ originalData: any[]; /// For `items__horizontal`
+ segmented: {
+  `${portrait|landscape}_${columns}`: any[]; /// For `items__textOnly` and `items__hasImage`
+ }
+}
+ */
 
 const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    paddingHorizontal: 20,
+    flex: 1,
   };
 
+  const [data, setData] = React.useState([]);
+
+  const areaOnLayout = e => {
+    const layout = e.nativeEvent.layout;
+    console.log('Wazzuuup', layout);
+    const bestMaxColumns = calculateMaxColumns(layout.width);
+
+    let finalData = [];
+    for (let i = 0; i < 3; i++) {
+      finalData.push([]);
+      for (let j = 0; j < bestMaxColumns; j++) {
+        finalData[i].push({});
+      }
+    }
+    setData(finalData);
+  };
+
+  console.log('??? final Data', data);
+
   return (
-    <SafeAreaView style={backgroundStyle}>
+    <View style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+      <View
+        style={{width: '100%', flex: 1, backgroundColor: 'green'}}
+        onLayout={areaOnLayout}>
+        <ScrollView
+          contentContainerStyle={{flexGrow: 1, backgroundColor: 'pink'}}>
+          {data.map((item, index) => {
+            return (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  backgroundColor: 'yellow',
+                  marginBottom: 20,
+                }}
+                key={`${index}`}>
+                {item.map((item2, index2) => {
+                  return (
+                    <React.Fragment key={`${index}__${index2}`}>
+                      <View
+                        style={{
+                          aspectRatio: 1,
+                          flex: 1,
+                          backgroundColor: 'red',
+                        }}
+                      />
+                      {index2 !== item.length - 1 ? (
+                        <View style={{width: 10, backgroundColor: 'black'}} />
+                      ) : null}
+                    </React.Fragment>
+                  );
+                })}
+              </View>
+            );
+          })}
+        </ScrollView>
+      </View>
+    </View>
   );
 };
 
