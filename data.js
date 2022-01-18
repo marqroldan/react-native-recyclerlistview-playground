@@ -9,9 +9,16 @@ const data = [
           'https://images.pexels.com/photos/3348748/pexels-photo-3348748.jpeg',
       },
       {
-        description: 'Girl with camera',
-        'image-url':
-          'https://images.pexels.com/photos/3812944/pexels-photo-3812944.jpeg',
+        description: 'Girl with camera 1',
+      },
+      {
+        description: 'Girl with camera 2',
+      },
+      {
+        description: 'Girl with camera 3',
+      },
+      {
+        description: 'Girl with camera 4',
       },
       {
         description: 'Beautiful Girl with Glasses',
