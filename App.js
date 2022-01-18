@@ -207,7 +207,11 @@ const App: () => Node = () => {
   const [maxColumns, setMaxColumns] = React.useState(null);
 
   const viewAll = (id, index) => {
-    setCurrentExpanded(id);
+    if (currentExpanded === id) {
+      setCurrentExpanded(null);
+    } else {
+      setCurrentExpanded(id);
+    }
   };
 
   const SectionRenderItem = data => {
