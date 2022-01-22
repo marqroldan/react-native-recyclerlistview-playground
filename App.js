@@ -10,6 +10,7 @@ import React, {useEffect} from 'react';
 import type {Node} from 'react';
 import {
   FlatList,
+  Image,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -109,7 +110,7 @@ By Category
 }
  */
 
-const horizontalItem = () => {
+const horizontalItem = ({item}) => {
   return (
     <View
       style={{
@@ -118,8 +119,12 @@ const horizontalItem = () => {
         marginHorizontal: 2.5,
         backgroundColor: 'blue',
         borderWidth: 1,
-      }}
-    />
+      }}>
+      <Image
+        source={{uri: item?.url || item?.['image-url']}}
+        style={{width: '100%', height: '100%'}}
+      />
+    </View>
   );
 };
 
@@ -154,6 +159,10 @@ class HasImage extends React.PureComponent {
                   borderWidth: 1,
                   backgroundColor: 'cyan',
                 }}>
+                <Image
+                  source={{uri: item?.url || item?.['image-url']}}
+                  style={{width: '100%', height: '100%'}}
+                />
                 <Text>{item.description || item.title}</Text>
               </View>
               {index !== this.props.data?.length - 1 ? (
