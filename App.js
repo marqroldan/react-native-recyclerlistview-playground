@@ -16,12 +16,16 @@ import {
   TouchableOpacity,
   useColorScheme,
   View,
+  Dimensions,
 } from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 import DummyData from './data';
 import calculateHorizontalTileWidth from './src/helpers/calculateHorizontalTileWidth';
+
+// Reducers
+import tileWidthReducer from './src/reducers/tileWidthReducer';
 
 const gapWidth = 10;
 const rangesDefault = [135, 145, 155];
@@ -350,16 +354,30 @@ const App: () => Node = () => {
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-    paddingHorizontal: 20,
     flex: 1,
   };
 
   const [data, setData] = React.useState([]);
 
-  const areaOnLayout = e => {
-    const layout = e.nativeEvent.layout;
-    const bestMaxColumns = calculateMaxColumns(layout.width);
+  const [currentLayoutWidth, setCurrentLayoutWidth] = React.useState(
+    Dimensions.get('window').width,
+  );
+  const [tileWidthsState, dispatch] = React.useReducer(tileWidthReducer, {});
 
+  const areaOnLayout = React.useCallback(e => {
+    const width = e.nativeEvent.layout?.width;
+    setCurrentLayoutWidth(width);
+
+    ////// Horizontal Tiles Width Calculation
+    const tileWidth = calculateHorizontalTileWidth(width - 20);
+    dispatch({
+      type: 'addTileWidth',
+      width,
+      tileWidth,
+    });
+
+    ///// View All Column Calculation
+    const bestMaxColumns = calculateMaxColumns(width);
     let finalData = [];
     for (let i = 0; i < 3; i++) {
       finalData.push([]);
@@ -369,25 +387,28 @@ const App: () => Node = () => {
     }
     setData(finalData);
     setMaxColumns(bestMaxColumns);
-  };
+  }, []);
 
   return (
     <View style={backgroundStyle}>
-      <View
-        style={{width: '100%', flex: 1, backgroundColor: 'red'}}
-        onLayout={areaOnLayout}>
-        <FlatList
-          data={finalD}
-          renderItem={SectionRenderItem}
-          contentContainerStyle={FlatListContentContainerStyle}
-          style={{marginHorizontal: -20}}
-        />
-      </View>
+      <Text>Window Width: {Dimensions.get('window').width}</Text>
+      <Text>Screen Width: {Dimensions.get('screen').width}</Text>
+      <Text>tileWidthsState: {JSON.stringify(tileWidthsState)}</Text>
+      <FlatList
+        onLayout={areaOnLayout}
+        data={finalD}
+        renderItem={SectionRenderItem}
+        contentContainerStyle={FlatList__ContentContainerStyle}
+        style={FlatList__Style}
+        extraData__currentWidth={currentLayoutWidth}
+      />
     </View>
   );
 };
 
-const FlatListContentContainerStyle = {
+const FlatList__Style = {width: '100%', flex: 1, backgroundColor: 'red'};
+
+const FlatList__ContentContainerStyle = {
   marginHorizontal: -20,
   paddingHorizontal: 20,
 };
