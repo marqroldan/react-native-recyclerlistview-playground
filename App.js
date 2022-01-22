@@ -33,6 +33,7 @@ import tileWidthReducer from './src/reducers/tileWidthReducer';
 /// Rows
 import Row__HorizontalItems from './src/components/rows/HorizontalItems';
 import Row__SectionHeader from './src/components/rows/SectionHeader';
+import Row__TextOnly from './src/components/rows/TextOnly';
 
 const RowTypes = {
   section_header: 'section_header',
@@ -95,38 +96,6 @@ class HasImage extends React.PureComponent {
                   source={{uri: item?.url || item?.['image-url']}}
                   style={{width: '100%', height: '100%'}}
                 />
-                <Text>{item.description || item.title}</Text>
-              </View>
-              {index !== this.props.data?.length - 1 ? (
-                <View style={{width: 10}} />
-              ) : null}
-            </React.Fragment>
-          );
-        })}
-      </View>
-    );
-  }
-}
-
-class TextOnly extends React.PureComponent {
-  render() {
-    return (
-      <View
-        style={{
-          flexDirection: 'row',
-          backgroundColor: 'brown',
-          marginBottom: 10,
-          borderRadius: 20,
-        }}>
-        {this.props.data?.map((item, index) => {
-          return (
-            <React.Fragment key={`hasImage_${index}`}>
-              <View
-                style={{
-                  flex: 1 / (this.props.maxColumns - 1),
-                  borderWidth: 1,
-                  backgroundColor: 'violet',
-                }}>
                 <Text>{item.description || item.title}</Text>
               </View>
               {index !== this.props.data?.length - 1 ? (
@@ -208,7 +177,7 @@ const App: () => Node = () => {
           return <HasImage data={item.data} maxColumns={maxColumns} />;
         }
         case RowTypes.items__textOnly: {
-          return <TextOnly data={item.data} maxColumns={maxColumns} />;
+          return <Row__TextOnly data={item.data} maxColumns={maxColumns} />;
         }
         default: {
           break;
