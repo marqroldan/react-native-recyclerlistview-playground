@@ -108,6 +108,10 @@ const calculateMaxTileWidth = (width, ranges) => {
     }
   });
 
+  if (deets.length === 0 && badDeets.length) {
+    deets.push(badDeets[0]);
+  }
+
   return {
     deets,
     badDeets,
