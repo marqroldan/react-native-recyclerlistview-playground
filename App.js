@@ -33,8 +33,8 @@ import DummyData from './data';
 import FastList from 'dcd-fast-list';
 
 const gapWidth = 10;
-const calculateMaxColumns = width => {
-  const ranges = [135, 145, 155];
+const rangesDefault = [135, 145, 155];
+const calculateMaxColumns = (width, ranges = rangesDefault) => {
   const possibleColumns = [];
   ranges.forEach((range, index) => {
     const columnsNoGap = Math.floor(width / range);
@@ -46,6 +46,79 @@ const calculateMaxColumns = width => {
   return Math.max(...possibleColumns);
 };
 
+const removeLastPercent = (width, percent = 0.13333333333) => {
+  return width * (1 - percent);
+};
+
+const ranges_horizontal = [120, 132.5, 145];
+
+const getTileWidth = (width, columns, gapWidth = 10) => {
+  return (width - columns * gapWidth) / columns;
+};
+
+const calculateMaxTileWidth = (width, ranges) => {
+  const deets = [];
+  const badDeets = [];
+
+  ranges.forEach(range => {
+    //// 10 is the gapWidth
+    const totalTileDims = range + 10;
+    const tileCount = width / totalTileDims;
+    const remainder = width % totalTileDims;
+    const remainderPercentage = (remainder / width) * 100;
+
+    const deet = {
+      tileWidth: range,
+      totalTileDims,
+      tileCountRaw: tileCount,
+      tileCount: Math.floor(tileCount),
+      remainder,
+      remainderPercentage,
+    };
+    if (remainderPercentage <= 23.53 && remainderPercentage >= 13.333) {
+      deets.push(deet);
+    } else {
+      badDeets.push(deet);
+    }
+  });
+
+  deets.sort((prev, next) => {
+    const prevDiff = 23.53 - prev.remainderPercentage;
+    const nextDiff = 23.53 - next.remainderPercentage;
+
+    if (prevDiff < nextDiff) {
+      return -1;
+    } else if (prevDiff > nextDiff) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+
+  badDeets.sort((prev, next) => {
+    const prevDiff = 23.53 - prev.remainderPercentage;
+    const nextDiff = 23.53 - next.remainderPercentage;
+
+    if (prevDiff < nextDiff) {
+      return -1;
+    } else if (prevDiff > nextDiff) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+
+  return {
+    deets,
+    badDeets,
+  };
+};
+
+const calculateMaxTileWidth2 = (totalScreenWidth, ranges) => {
+  const finalWidth = totalScreenWidth - 20; /// 20 is paddingLeft
+  return calculateMaxTileWidth(finalWidth, ranges);
+};
+
 class SectionHeader extends React.PureComponent {
   viewAll = () => {
     this.props.viewAll(this.props.id, this.props.index);
@@ -53,7 +126,13 @@ class SectionHeader extends React.PureComponent {
 
   render() {
     return (
-      <View style={{flexDirection: 'row', minHeight: 50, alignItems: 'center'}}>
+      <View
+        style={{
+          flexDirection: 'row',
+          minHeight: 50,
+          alignItems: 'center',
+          paddingHorizontal: 20,
+        }}>
         <View style={{flex: 1}}>
           <Text>{this.props.sectionTitle}</Text>
         </View>
@@ -110,13 +189,12 @@ By Category
 }
  */
 
-const horizontalItem = ({item}) => {
+const horizontalItem = ({item, index}) => {
   return (
     <View
       style={{
         height: 150,
         aspectRatio: 1,
-        marginHorizontal: 2.5,
         backgroundColor: 'blue',
         borderWidth: 1,
       }}>
@@ -135,6 +213,13 @@ class HorizontalItems extends React.PureComponent {
         data={this.props.data}
         horizontal={true}
         renderItem={horizontalItem}
+        contentContainerStyle={{
+          paddingHorizontal: 20,
+          backgroundColor: 'rgba(130, 35, 20, 0.8)',
+        }}
+        ItemSeparatorComponent={() => {
+          return <View style={{width: 10}} />;
+        }}
       />
     );
   }
@@ -222,6 +307,19 @@ const App: () => Node = () => {
       setCurrentExpanded(id);
     }
   };
+
+  console.log(
+    'Deets',
+    JSON.stringify({
+      320: calculateMaxTileWidth2(320, ranges_horizontal),
+      360: calculateMaxTileWidth2(360, ranges_horizontal),
+      375: calculateMaxTileWidth2(375, ranges_horizontal),
+      414: calculateMaxTileWidth2(414, ranges_horizontal),
+      1024: calculateMaxTileWidth2(1024, ranges_horizontal),
+      1112: calculateMaxTileWidth2(1112, ranges_horizontal),
+      768: calculateMaxTileWidth2(768, ranges_horizontal),
+    }),
+  );
 
   const SectionRenderItem = data => {
     const {index, item} = data;
@@ -353,12 +451,22 @@ const App: () => Node = () => {
   return (
     <View style={backgroundStyle}>
       <View
-        style={{width: '100%', flex: 1, backgroundColor: 'green'}}
+        style={{width: '100%', flex: 1, backgroundColor: 'red'}}
         onLayout={areaOnLayout}>
-        <FlatList data={finalD} renderItem={SectionRenderItem} />
+        <FlatList
+          data={finalD}
+          renderItem={SectionRenderItem}
+          contentContainerStyle={FlatListContentContainerStyle}
+          style={{marginHorizontal: -20}}
+        />
       </View>
     </View>
   );
+};
+
+const FlatListContentContainerStyle = {
+  marginHorizontal: -20,
+  paddingHorizontal: 20,
 };
 
 /*
