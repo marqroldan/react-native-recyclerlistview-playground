@@ -1,7 +1,7 @@
 import React from 'react';
 import {Image, Text, View} from 'react-native';
 
-class HasImage extends React.PureComponent {
+export default class HasImage extends React.PureComponent {
   render() {
     return (
       <View
