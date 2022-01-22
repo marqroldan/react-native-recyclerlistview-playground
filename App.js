@@ -22,32 +22,16 @@ import {
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 import DummyData from './data';
+
+// Helpers
 import calculateHorizontalTileWidth from './src/helpers/calculateHorizontalTileWidth';
+import calculateMaxColumns from './src/helpers/calculateMaxColumns';
 
 // Reducers
 import tileWidthReducer from './src/reducers/tileWidthReducer';
 
 /// Rows
 import Row__HorizontalItems from './src/components/rows/HorizontalItems';
-
-const gapWidth = 10;
-const rangesDefault = [135, 145, 155];
-const calculateMaxColumns = (width, ranges = rangesDefault) => {
-  const possibleColumns = [];
-  ranges.forEach((range, index) => {
-    const columnsNoGap = Math.floor(width / range);
-    const columnsWithGap = Math.floor(
-      (width - (columnsNoGap - 1) * gapWidth) / range,
-    );
-    possibleColumns.push(columnsWithGap);
-  });
-  return Math.max(...possibleColumns);
-};
-
-const calculateMaxTileWidth2 = (totalScreenWidth, ranges) => {
-  const finalWidth = totalScreenWidth - 20; /// 20 is paddingLeft
-  return calculateHorizontalTileWidth(finalWidth, ranges);
-};
 
 class SectionHeader extends React.PureComponent {
   viewAll = () => {
@@ -193,11 +177,13 @@ const App: () => Node = () => {
   const [finalD, setFinalD] = React.useState([]);
   const [currentExpanded, setCurrentExpanded] = React.useState(null);
   const [maxColumns, setMaxColumns] = React.useState(null);
-  const [data, setData] = React.useState([]);
   const [currentLayoutWidth, setCurrentLayoutWidth] = React.useState(
     Dimensions.get('window').width,
   );
-  const [tileWidthsState, dispatch] = React.useReducer(tileWidthReducer, {});
+  const [tileWidthsState, tileWidthDispatch] = React.useReducer(
+    tileWidthReducer,
+    {},
+  );
 
   const viewAll = React.useCallback(
     (id, index) => {
@@ -216,7 +202,7 @@ const App: () => Node = () => {
 
     ////// Horizontal Tiles Width Calculation
     const tileWidth = calculateHorizontalTileWidth(width - 20);
-    dispatch({
+    tileWidthDispatch({
       type: 'addTileWidth',
       width,
       tileWidth,
@@ -224,14 +210,6 @@ const App: () => Node = () => {
 
     ///// View All Column Calculation
     const bestMaxColumns = calculateMaxColumns(width);
-    let finalData = [];
-    for (let i = 0; i < 3; i++) {
-      finalData.push([]);
-      for (let j = 0; j < bestMaxColumns; j++) {
-        finalData[i].push({});
-      }
-    }
-    setData(finalData);
     setMaxColumns(bestMaxColumns);
   }, []);
 
