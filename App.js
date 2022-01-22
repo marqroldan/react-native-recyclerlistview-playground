@@ -11,9 +11,6 @@ import type {Node} from 'react';
 import {
   FlatList,
   Image,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -21,13 +18,7 @@ import {
   View,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 import DummyData from './data';
 import calculateHorizontalTileWidth from './src/helpers/calculateHorizontalTileWidth';
@@ -46,74 +37,9 @@ const calculateMaxColumns = (width, ranges = rangesDefault) => {
   return Math.max(...possibleColumns);
 };
 
-const removeLastPercent = (width, percent = 0.13333333333) => {
-  return width * (1 - percent);
-};
-
-const ranges_horizontal = [120, 132.5, 145];
-
-const getTileWidth = (width, columns, gapWidth = 10) => {
-  return (width - columns * gapWidth) / columns;
-};
-
-const closestToMaxDiffSort = (prev, next) => {
-  const prevDiff = 23.53 - prev.remainderPercentage;
-  const nextDiff = 23.53 - next.remainderPercentage;
-
-  if (prevDiff < nextDiff) {
-    return -1;
-  } else if (prevDiff > nextDiff) {
-    return 1;
-  } else {
-    return 0;
-  }
-};
-
-const getFinalDeet = (prevDeet, nextDeet) => {
-  if (prevDeet) {
-    const prevDiff = 23.53 - prevDeet.remainderPercentage;
-    const nextDiff = 23.53 - nextDeet.remainderPercentage;
-    if (prevDiff > nextDiff) {
-      return nextDeet;
-    }
-  } else {
-    return nextDeet;
-  }
-  return prevDeet;
-};
-
-const calculateMaxTileWidth_prev = (width, ranges) => {
-  let deets;
-  let badDeets;
-
-  ranges.forEach(range => {
-    //// 10 is the gapWidth
-    const totalTileDims = range + 10;
-    const tileCount = width / totalTileDims;
-    const remainder = width % totalTileDims;
-    const remainderPercentage = (remainder / width) * 100;
-
-    const deet = {
-      tileWidth: range,
-      totalTileDims,
-      tileCountRaw: tileCount,
-      tileCount: Math.floor(tileCount),
-      remainder,
-      remainderPercentage,
-    };
-    if (remainderPercentage <= 23.53 && remainderPercentage >= 13.333) {
-      deets = getFinalDeet(deets, deet);
-    } else {
-      badDeets = getFinalDeet(badDeets, deet);
-    }
-  });
-
-  return deets || badDeets;
-};
-
 const calculateMaxTileWidth2 = (totalScreenWidth, ranges) => {
   const finalWidth = totalScreenWidth - 20; /// 20 is paddingLeft
-  return calculateMaxTileWidth_prev(finalWidth, ranges);
+  return calculateHorizontalTileWidth(finalWidth, ranges);
 };
 
 class SectionHeader extends React.PureComponent {
@@ -308,13 +234,13 @@ const App: () => Node = () => {
   console.log(
     'Deets',
     JSON.stringify({
-      320: calculateMaxTileWidth2(320, ranges_horizontal),
-      360: calculateMaxTileWidth2(360, ranges_horizontal),
-      375: calculateMaxTileWidth2(375, ranges_horizontal),
-      414: calculateMaxTileWidth2(414, ranges_horizontal),
-      1024: calculateMaxTileWidth2(1024, ranges_horizontal),
-      1112: calculateMaxTileWidth2(1112, ranges_horizontal),
-      768: calculateMaxTileWidth2(768, ranges_horizontal),
+      320: calculateMaxTileWidth2(320),
+      360: calculateMaxTileWidth2(360),
+      375: calculateMaxTileWidth2(375),
+      414: calculateMaxTileWidth2(414),
+      1024: calculateMaxTileWidth2(1024),
+      1112: calculateMaxTileWidth2(1112),
+      768: calculateMaxTileWidth2(768),
     }),
   );
 
