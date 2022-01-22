@@ -56,9 +56,22 @@ const getTileWidth = (width, columns, gapWidth = 10) => {
   return (width - columns * gapWidth) / columns;
 };
 
+const closestToMaxDiffSort = (prev, next) => {
+  const prevDiff = 23.53 - prev.remainderPercentage;
+  const nextDiff = 23.53 - next.remainderPercentage;
+
+  if (prevDiff < nextDiff) {
+    return -1;
+  } else if (prevDiff > nextDiff) {
+    return 1;
+  } else {
+    return 0;
+  }
+};
+
 const calculateMaxTileWidth = (width, ranges) => {
-  const deets = [];
-  const badDeets = [];
+  let deets;
+  let badDeets;
 
   ranges.forEach(range => {
     //// 10 is the gapWidth
@@ -76,46 +89,27 @@ const calculateMaxTileWidth = (width, ranges) => {
       remainderPercentage,
     };
     if (remainderPercentage <= 23.53 && remainderPercentage >= 13.333) {
-      deets.push(deet);
+      if (deets) {
+        const res = closestToMaxDiffSort(deets, deet);
+        if (res === 1) {
+          deets = deet;
+        }
+      } else {
+        deets = deet;
+      }
     } else {
-      badDeets.push(deet);
+      if (badDeets) {
+        const res = closestToMaxDiffSort(badDeets, deet);
+        if (res === 1) {
+          badDeets = deet;
+        }
+      } else {
+        badDeets = deet;
+      }
     }
   });
 
-  deets.sort((prev, next) => {
-    const prevDiff = 23.53 - prev.remainderPercentage;
-    const nextDiff = 23.53 - next.remainderPercentage;
-
-    if (prevDiff < nextDiff) {
-      return -1;
-    } else if (prevDiff > nextDiff) {
-      return 1;
-    } else {
-      return 0;
-    }
-  });
-
-  badDeets.sort((prev, next) => {
-    const prevDiff = 23.53 - prev.remainderPercentage;
-    const nextDiff = 23.53 - next.remainderPercentage;
-
-    if (prevDiff < nextDiff) {
-      return -1;
-    } else if (prevDiff > nextDiff) {
-      return 1;
-    } else {
-      return 0;
-    }
-  });
-
-  if (deets.length === 0 && badDeets.length) {
-    deets.push(badDeets[0]);
-  }
-
-  return {
-    deets,
-    badDeets,
-  };
+  return deets || badDeets;
 };
 
 const calculateMaxTileWidth2 = (totalScreenWidth, ranges) => {
