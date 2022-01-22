@@ -1,11 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
 import React, {useEffect} from 'react';
 import type {Node} from 'react';
 import {
@@ -224,68 +216,5 @@ const FlatList__ContentContainerStyle = {
   marginHorizontal: -20,
   paddingHorizontal: 20,
 };
-
-/*
-
-  return (
-    <View style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <View
-        style={{width: '100%', flex: 1, backgroundColor: 'green'}}
-        onLayout={areaOnLayout}>
-        <ScrollView
-          contentContainerStyle={{flexGrow: 1, backgroundColor: 'pink'}}>
-          {data.map((item, index) => {
-            return (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  backgroundColor: 'yellow',
-                  marginBottom: 20,
-                }}
-                key={`${index}`}>
-                {item.map((item2, index2) => {
-                  return (
-                    <React.Fragment key={`${index}__${index2}`}>
-                      <View
-                        style={{
-                          aspectRatio: 1,
-                          flex: 1,
-                          backgroundColor: 'red',
-                        }}
-                      />
-                      {index2 !== item.length - 1 ? (
-                        <View style={{width: 10, backgroundColor: 'black'}} />
-                      ) : null}
-                    </React.Fragment>
-                  );
-                })}
-              </View>
-            );
-          })}
-        </ScrollView>
-      </View>
-    </View>
-  );
- */
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;
