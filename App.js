@@ -69,6 +69,19 @@ const closestToMaxDiffSort = (prev, next) => {
   }
 };
 
+const getFinalDeet = (prevDeet, nextDeet) => {
+  if (prevDeet) {
+    const prevDiff = 23.53 - prevDeet.remainderPercentage;
+    const nextDiff = 23.53 - nextDeet.remainderPercentage;
+    if (prevDiff > nextDiff) {
+      return nextDeet;
+    }
+  } else {
+    return nextDeet;
+  }
+  return prevDeet;
+};
+
 const calculateMaxTileWidth = (width, ranges) => {
   let deets;
   let badDeets;
@@ -89,23 +102,9 @@ const calculateMaxTileWidth = (width, ranges) => {
       remainderPercentage,
     };
     if (remainderPercentage <= 23.53 && remainderPercentage >= 13.333) {
-      if (deets) {
-        const res = closestToMaxDiffSort(deets, deet);
-        if (res === 1) {
-          deets = deet;
-        }
-      } else {
-        deets = deet;
-      }
+      deets = getFinalDeet(deets, deet);
     } else {
-      if (badDeets) {
-        const res = closestToMaxDiffSort(badDeets, deet);
-        if (res === 1) {
-          badDeets = deet;
-        }
-      } else {
-        badDeets = deet;
-      }
+      badDeets = getFinalDeet(badDeets, deet);
     }
   });
 
