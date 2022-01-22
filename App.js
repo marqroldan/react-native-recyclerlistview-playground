@@ -30,7 +30,7 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 import DummyData from './data';
-import FastList from 'dcd-fast-list';
+import calculateHorizontalTileWidth from './src/helpers/calculateHorizontalTileWidth';
 
 const gapWidth = 10;
 const rangesDefault = [135, 145, 155];
@@ -82,7 +82,7 @@ const getFinalDeet = (prevDeet, nextDeet) => {
   return prevDeet;
 };
 
-const calculateMaxTileWidth = (width, ranges) => {
+const calculateMaxTileWidth_prev = (width, ranges) => {
   let deets;
   let badDeets;
 
@@ -113,7 +113,7 @@ const calculateMaxTileWidth = (width, ranges) => {
 
 const calculateMaxTileWidth2 = (totalScreenWidth, ranges) => {
   const finalWidth = totalScreenWidth - 20; /// 20 is paddingLeft
-  return calculateMaxTileWidth(finalWidth, ranges);
+  return calculateMaxTileWidth_prev(finalWidth, ranges);
 };
 
 class SectionHeader extends React.PureComponent {
