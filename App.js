@@ -27,6 +27,9 @@ import calculateHorizontalTileWidth from './src/helpers/calculateHorizontalTileW
 // Reducers
 import tileWidthReducer from './src/reducers/tileWidthReducer';
 
+/// Rows
+import Row__HorizontalItems from './src/components/rows/HorizontalItems';
+
 const gapWidth = 10;
 const rangesDefault = [135, 145, 155];
 const calculateMaxColumns = (width, ranges = rangesDefault) => {
@@ -116,42 +119,6 @@ By Category
 }
  */
 
-const horizontalItem = ({item, index}) => {
-  return (
-    <View
-      style={{
-        height: 150,
-        aspectRatio: 1,
-        backgroundColor: 'blue',
-        borderWidth: 1,
-      }}>
-      <Image
-        source={{uri: item?.url || item?.['image-url']}}
-        style={{width: '100%', height: '100%'}}
-      />
-    </View>
-  );
-};
-
-class HorizontalItems extends React.PureComponent {
-  render() {
-    return (
-      <FlatList
-        data={this.props.data}
-        horizontal={true}
-        renderItem={horizontalItem}
-        contentContainerStyle={{
-          paddingHorizontal: 20,
-          backgroundColor: 'rgba(130, 35, 20, 0.8)',
-        }}
-        ItemSeparatorComponent={() => {
-          return <View style={{width: 10}} />;
-        }}
-      />
-    );
-  }
-}
-
 class HasImage extends React.PureComponent {
   render() {
     return (
@@ -226,56 +193,84 @@ const App: () => Node = () => {
   const [finalD, setFinalD] = React.useState([]);
   const [currentExpanded, setCurrentExpanded] = React.useState(null);
   const [maxColumns, setMaxColumns] = React.useState(null);
+  const [data, setData] = React.useState([]);
+  const [currentLayoutWidth, setCurrentLayoutWidth] = React.useState(
+    Dimensions.get('window').width,
+  );
+  const [tileWidthsState, dispatch] = React.useReducer(tileWidthReducer, {});
 
-  const viewAll = (id, index) => {
-    if (currentExpanded === id) {
-      setCurrentExpanded(null);
-    } else {
-      setCurrentExpanded(id);
-    }
-  };
-
-  console.log(
-    'Deets',
-    JSON.stringify({
-      320: calculateMaxTileWidth2(320),
-      360: calculateMaxTileWidth2(360),
-      375: calculateMaxTileWidth2(375),
-      414: calculateMaxTileWidth2(414),
-      1024: calculateMaxTileWidth2(1024),
-      1112: calculateMaxTileWidth2(1112),
-      768: calculateMaxTileWidth2(768),
-    }),
+  const viewAll = React.useCallback(
+    (id, index) => {
+      if (currentExpanded === id) {
+        setCurrentExpanded(null);
+      } else {
+        setCurrentExpanded(id);
+      }
+    },
+    [currentExpanded],
   );
 
-  const SectionRenderItem = data => {
-    const {index, item} = data;
-    switch (item.type) {
-      case RowTypes.section_header: {
-        return (
-          <SectionHeader
-            sectionTitle={item.sectionTitle}
-            id={item.id}
-            index={index}
-            viewAll={viewAll}
-          />
-        );
-      }
-      case RowTypes.items__horizontal: {
-        return <HorizontalItems data={item.data} />;
-      }
-      case RowTypes.items__hasImage: {
-        return <HasImage data={item.data} maxColumns={maxColumns} />;
-      }
-      case RowTypes.items__textOnly: {
-        return <TextOnly data={item.data} maxColumns={maxColumns} />;
-      }
-      default: {
-        break;
+  const areaOnLayout = React.useCallback(e => {
+    const width = e.nativeEvent.layout?.width;
+    setCurrentLayoutWidth(width);
+
+    ////// Horizontal Tiles Width Calculation
+    const tileWidth = calculateHorizontalTileWidth(width - 20);
+    dispatch({
+      type: 'addTileWidth',
+      width,
+      tileWidth,
+    });
+
+    ///// View All Column Calculation
+    const bestMaxColumns = calculateMaxColumns(width);
+    let finalData = [];
+    for (let i = 0; i < 3; i++) {
+      finalData.push([]);
+      for (let j = 0; j < bestMaxColumns; j++) {
+        finalData[i].push({});
       }
     }
-    return null;
-  };
+    setData(finalData);
+    setMaxColumns(bestMaxColumns);
+  }, []);
+
+  const renderItem = React.useCallback(
+    itemData => {
+      const {index, item} = itemData;
+      switch (item.type) {
+        case RowTypes.section_header: {
+          return (
+            <SectionHeader
+              sectionTitle={item.sectionTitle}
+              id={item.id}
+              index={index}
+              viewAll={viewAll}
+            />
+          );
+        }
+        case RowTypes.items__horizontal: {
+          return (
+            <Row__HorizontalItems
+              data={item.data}
+              dimensions={tileWidthsState[currentLayoutWidth]}
+            />
+          );
+        }
+        case RowTypes.items__hasImage: {
+          return <HasImage data={item.data} maxColumns={maxColumns} />;
+        }
+        case RowTypes.items__textOnly: {
+          return <TextOnly data={item.data} maxColumns={maxColumns} />;
+        }
+        default: {
+          break;
+        }
+      }
+      return null;
+    },
+    [viewAll, maxColumns, tileWidthsState, currentLayoutWidth],
+  );
 
   useEffect(() => {
     const dataDetails = {};
@@ -357,38 +352,6 @@ const App: () => Node = () => {
     flex: 1,
   };
 
-  const [data, setData] = React.useState([]);
-
-  const [currentLayoutWidth, setCurrentLayoutWidth] = React.useState(
-    Dimensions.get('window').width,
-  );
-  const [tileWidthsState, dispatch] = React.useReducer(tileWidthReducer, {});
-
-  const areaOnLayout = React.useCallback(e => {
-    const width = e.nativeEvent.layout?.width;
-    setCurrentLayoutWidth(width);
-
-    ////// Horizontal Tiles Width Calculation
-    const tileWidth = calculateHorizontalTileWidth(width - 20);
-    dispatch({
-      type: 'addTileWidth',
-      width,
-      tileWidth,
-    });
-
-    ///// View All Column Calculation
-    const bestMaxColumns = calculateMaxColumns(width);
-    let finalData = [];
-    for (let i = 0; i < 3; i++) {
-      finalData.push([]);
-      for (let j = 0; j < bestMaxColumns; j++) {
-        finalData[i].push({});
-      }
-    }
-    setData(finalData);
-    setMaxColumns(bestMaxColumns);
-  }, []);
-
   return (
     <View style={backgroundStyle}>
       <Text>Window Width: {Dimensions.get('window').width}</Text>
@@ -397,10 +360,9 @@ const App: () => Node = () => {
       <FlatList
         onLayout={areaOnLayout}
         data={finalD}
-        renderItem={SectionRenderItem}
+        renderItem={renderItem}
         contentContainerStyle={FlatList__ContentContainerStyle}
         style={FlatList__Style}
-        extraData__currentWidth={currentLayoutWidth}
       />
     </View>
   );
