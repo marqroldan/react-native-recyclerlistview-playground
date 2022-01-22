@@ -32,38 +32,7 @@ import tileWidthReducer from './src/reducers/tileWidthReducer';
 
 /// Rows
 import Row__HorizontalItems from './src/components/rows/HorizontalItems';
-
-class SectionHeader extends React.PureComponent {
-  viewAll = () => {
-    this.props.viewAll(this.props.id, this.props.index);
-  };
-
-  render() {
-    return (
-      <View
-        style={{
-          flexDirection: 'row',
-          minHeight: 50,
-          alignItems: 'center',
-          paddingHorizontal: 20,
-        }}>
-        <View style={{flex: 1}}>
-          <Text>{this.props.sectionTitle}</Text>
-        </View>
-        <TouchableOpacity
-          onPress={this.viewAll}
-          style={{
-            borderWidth: 1,
-            borderColor: 'black',
-            paddingHorizontal: 15,
-            alignItems: 'center',
-          }}>
-          <Text>View All</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-}
+import Row__SectionHeader from './src/components/rows/SectionHeader';
 
 const RowTypes = {
   section_header: 'section_header',
@@ -219,7 +188,7 @@ const App: () => Node = () => {
       switch (item.type) {
         case RowTypes.section_header: {
           return (
-            <SectionHeader
+            <Row__SectionHeader
               sectionTitle={item.sectionTitle}
               id={item.id}
               index={index}
